@@ -15,6 +15,7 @@ We will use MiniCity Dataset from Cityscapes. This dataset is used for 2020 ECCV
 - workshop page: https://vipriors.github.io/challenges/
 - challenge link: https://competitions.codalab.org/competitions/23712
 - [dataset download(google drive)](https://drive.google.com/file/d/1YjkiaLqU1l9jVCVslrZpip4YsCHHlbNA/view?usp=sharing)
+   - move dataset into `minicity` folder.
 
 ### 0-3. Dataset Simple EDA (Exploratory Data Analysis) - Class Distribution, Sample Distribution
 #### benchmark class 
@@ -44,6 +45,9 @@ We will use MiniCity Dataset from Cityscapes. This dataset is used for 2020 ECCV
 ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/class_pixel_distribution.png)
 
 #### deeplab v3 baseline test set result
+- Dataset has severe Class-Imbalance problem.  
+    - IoU of minor class is very low. (wall, fence, bus, train)
+
 ```python
 classes          IoU      nIoU
 --------------------------------
@@ -95,18 +99,51 @@ python baseline.py --save_path baseline_run_deeplabv3_resnet101 --model DeepLabv
     - I recommend default (ce) or Class-Weighted CE loss. Focal loss didn'y work well in my codebase.
 
 ```python
+# Cross Entropy Loss
 python baseline.py --save_path baseline_run_deeplabv3_resnet50 --crop_size 576 1152 --batch_size 8;
 ```
 
 ```python
+# Weighted Cross Entropy Loss
 python baseline.py --save_path baseline_run_deeplabv3_resnet50_wce --crop_size 576 1152 --batch_size 8 --loss weighted_ce;
 ```
 
 ```python
+# Focal Loss
 python baseline.py --save_path baseline_run_deeplabv3_resnet50_focal --crop_size 576 1152 --batch_size 8 --loss focal --focal_gamma 2.0;
 ```
 
-### 1-2. Additional Augmentation Tricks
+### 1-2. Normalization Layer
+- I tried 4 normalization layer.
+    - Batch Normalization (BN)
+    - Instance Normalization (IN)
+    - Group Normalization (GN)
+    - Evolving Normalization (EvoNorm)
+
+- You can choose normalization layer using `--norm` argument.
+    - I recommend BN. 
+
+```python
+# Batch Normalization
+python baseline.py --save_path baseline_run_deeplabv3_resnet50 --crop_size 576 1152 --batch_size 8;
+```
+
+```python
+# Instance Normalization
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_instancenorm --crop_size 576 1152 --batch_size 8 --norm instance;
+```
+
+```python
+# Group Normalization
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_groupnorm --crop_size 576 1152 --batch_size 8 --norm group;
+```
+
+```python
+# Evolving Normalization
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_evonorm --crop_size 576 1152 --batch_size 8 --norm evo;
+```
+
+### 1-3. Additional Augmentation Tricks
 - Propose 2 data augmentation techniques (CutMix, copyblob)
 - ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/cutmix.PNG)
     - Based on [Original CutMix](https://arxiv.org/abs/1905.04899), bring idea to Semantic Segmentation. 
@@ -124,3 +161,44 @@ python baseline.py --save_path baseline_run_deeplabv3_resnet50_cutmix --crop_siz
 ```python
 python baseline.py --save_path baseline_run_deeplabv3_resnet50_copyblob --crop_size 576 1152 --batch_size 8 --copyblob;
 ```
+
+## 2. Inference
+- After training, we can evaluate using trained models.
+   - I recommend same value for `train_size` and `test_size`.
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50 --batch_size 4 --predict;
+```
+
+### 2-1. Multi-Scale Infernece (Test Time Augmentation)
+- I use [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.2] scales for Multi-Scale Inference. Additionaly, use H-Flip.
+    - Must use single batch (batch_size=1)
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50 --batch_size 1 --predict --mst;
+```
+
+### 2-2. Calculate Test Metric (For Challenge)
+- We can calculate test metric and save in `results.txt`.
+   - ex) [results.txt example](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/results.txt)
+
+```python
+python evaluate.py --results baseline_run_deeplabv3_resnet50/results_test --batch_size 1 --predict --mst;
+```
+
+## 3. Final Result
+- ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/leaderboard.PNG)
+- My final single model result is **0.6069831962012341**
+    - Achieve 5th place on the leaderboard.
+    - But, didn't submit short-paper, so my score is not official score.
+- If i use bigger model and bigger backbone, performance will be improved.. maybe..
+- If i use ensemble various models, performance will be improved!
+- Leader board can be found in [Codalab Challenge Page](https://competitions.codalab.org/competitions/23712#results)
+
+## 4. Reference
+- [vipriors-challange-toolkit](https://github.com/VIPriors/vipriors-challenges-toolkit)
+- [torchvision deeplab v3 model](https://github.com/pytorch/vision/blob/master/torchvision/models/segmentation/deeplabv3.py)
+- [Focal Loss](https://github.com/clcarwin/focal_loss_pytorch)
+- [Class Weighted CE Loss](https://github.com/openseg-group/OCNet.pytorch/blob/master/utils/loss.py)
+- [EvoNorm](https://github.com/digantamisra98/EvoNorm)
+- [CutMix Augmentation](https://github.com/clovaai/CutMix-PyTorch)
