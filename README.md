@@ -145,20 +145,25 @@ python baseline.py --save_path baseline_run_deeplabv3_resnet50_evonorm --crop_si
 
 ### 1-3. Additional Augmentation Tricks
 - Propose 2 data augmentation techniques (CutMix, copyblob)
-- ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/cutmix.PNG)
-    - Based on [Original CutMix](https://arxiv.org/abs/1905.04899), bring idea to Semantic Segmentation. 
-- ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/copyblob.PNG)
-    - To tackle Class-Imbalance, use CopyBlob augmentation with visual inductive prior.
-        - Wall must be located on the sidewalk
-        - Fence must be located on the sidewalk
-        - Bus must be located on the Road
-        - Train must be located on the Road
+- CutMix Augmentation
+![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/cutmix.PNG)
+   - Based on [Original CutMix](https://arxiv.org/abs/1905.04899), bring idea to Semantic Segmentation. 
+
+- CopyBlob Augmentation
+![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/copyblob.PNG)
+   - To tackle Class-Imbalance, use CopyBlob augmentation with visual inductive prior.
+      - Wall must be located on the sidewalk
+      - Fence must be located on the sidewalk
+      - Bus must be located on the Road
+      - Train must be located on the Road
 
 ```python
+# CutMix Augmentation
 python baseline.py --save_path baseline_run_deeplabv3_resnet50_cutmix --crop_size 576 1152 --batch_size 8 --cutmix;
 ```
 
 ```python
+# CopyBlob Augmentation
 python baseline.py --save_path baseline_run_deeplabv3_resnet50_copyblob --crop_size 576 1152 --batch_size 8 --copyblob;
 ```
 
@@ -175,15 +180,16 @@ python baseline.py --save_path baseline_run_deeplabv3_resnet50 --batch_size 4 --
     - Must use single batch (batch_size=1)
 
 ```python
+# Multi-Scale Inference
 python baseline.py --save_path baseline_run_deeplabv3_resnet50 --batch_size 1 --predict --mst;
 ```
 
-### 2-2. Calculate Test Metric (For Challenge)
-- We can calculate test metric and save in `results.txt`.
-   - ex) [results.txt example](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/results.txt)
+### 2-2. Calculate Metric using Validation Set
+- We can calculate metric and save results into `results.txt`.
+   - ex) [My final validation set result](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/results.txt)
 
 ```python
-python evaluate.py --results baseline_run_deeplabv3_resnet50/results_test --batch_size 1 --predict --mst;
+python evaluate.py --results baseline_run_deeplabv3_resnet50/results_val --batch_size 1 --predict --mst;
 ```
 
 ## 3. Final Result
