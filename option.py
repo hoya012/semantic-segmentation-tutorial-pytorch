@@ -26,9 +26,9 @@ def get_args():
                         type=float, help='data augmentation: color jitter factor')
     parser.add_argument('--hflip', metavar='[True,False]', default=True,
                         type=float, help='data augmentation: random horizontal flip')
-    parser.add_argument('--crop_size', metavar='(384,768)', default=[768, 768], nargs='+', type=int, help='data augmentation: random crop size')
-    parser.add_argument('--train_size', metavar='(512,1024)', default=[1024, 2048], nargs='+', type=int, help='image size during training')
-    parser.add_argument('--test_size', metavar='(512,1024)', default=[1024, 2048], nargs='+', type=int, help='image size during test')
+    parser.add_argument('--crop_size', default=[768, 768], nargs='+', type=int, help='data augmentation: random crop size')
+    parser.add_argument('--train_size', default=[1024, 2048], nargs='+', type=int, help='image size during training')
+    parser.add_argument('--test_size', default=[1024, 2048], nargs='+', type=int, help='image size during test')
     parser.add_argument('--dataset_mean', metavar='[0.485, 0.456, 0.406]',
                         default=[0.485, 0.456, 0.406], type=list,
                         help='mean for normalization')

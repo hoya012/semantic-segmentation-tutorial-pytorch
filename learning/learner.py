@@ -180,10 +180,7 @@ def predict(dataloader, model, maskColors, folder='baseline_run', mode='val', ar
         [batch_time, data_time],
         prefix='Predict: ')
     
-    if args.expert:
-        Dataset = MiniCity_Expert
-    else:
-        Dataset = MiniCity
+    Dataset = MiniCity
 
     # Set model in evaluation mode
     model.eval()
