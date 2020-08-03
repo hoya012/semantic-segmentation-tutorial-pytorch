@@ -48,28 +48,79 @@ We will use MiniCity Dataset from Cityscapes. This dataset is used for 2020 ECCV
 classes          IoU      nIoU
 --------------------------------
 road          : 0.963      nan
-sidewalk      : 0.735      nan
-building      : 0.864      nan
-wall          : 0.285      nan
-fence         : 0.301      nan
-pole          : 0.418      nan
-traffic light : 0.413      nan
-traffic sign  : 0.516      nan
-vegetation    : 0.882      nan
-terrain       : 0.453      nan
-sky           : 0.895      nan
-person        : 0.677    0.442
-rider         : 0.295    0.164
-car           : 0.882    0.746
-truck         : 0.443    0.285
-bus           : 0.160    0.048
-train         : 0.210    0.166
-motorcycle    : 0.371    0.199
-bicycle       : 0.612    0.369
+sidewalk      : 0.762      nan
+building      : 0.856      nan
+wall          : 0.120      nan
+fence         : 0.334      nan
+pole          : 0.488      nan
+traffic light : 0.563      nan
+traffic sign  : 0.631      nan
+vegetation    : 0.884      nan
+terrain       : 0.538      nan
+sky           : 0.901      nan
+person        : 0.732    0.529
+rider         : 0.374    0.296
+car           : 0.897    0.822
+truck         : 0.444    0.218
+bus           : 0.244    0.116
+train         : 0.033    0.006
+motorcycle    : 0.492    0.240
+bicycle       : 0.638    0.439
 --------------------------------
-Score Average : 0.546    0.302
+Score Average : 0.573    0.333
 --------------------------------
 ```
 
-   
+## 1. Training Baseline Model 
+- I use [DeepLabV3 from torchvision.](https://pytorch.org/hub/pytorch_vision_deeplabv3_resnet101/)
+    - ResNet-50 Backbone, ResNet-101 Backbone
+
+- I use 4 RTX 2080 Ti GPUs. (11GB x 4)
+- If you have just 1 GPU or small GPU Memory, please use smaller batch size (<= 8)
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50 --crop_size 576 1152 --batch_size 8;
+```
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet101 --model DeepLabv3_resnet101 --train_size 512 1024 --test_size 512 1024 --crop_size 384 768 --batch_size 8;
+```
  
+### 1-1. Loss Functions
+- I tried 3 loss functions. 
+    - Cross-Entropy Loss
+    - Class-Weighted Cross Entropy Loss
+    - Focal Loss
+- You can choose loss function using `--loss` argument.
+    - I recommend default (ce) or Class-Weighted CE loss. Focal loss didn'y work well in my codebase.
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50 --crop_size 576 1152 --batch_size 8;
+```
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_wce --crop_size 576 1152 --batch_size 8 --loss weighted_ce;
+```
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_focal --crop_size 576 1152 --batch_size 8 --loss focal --focal_gamma 2.0;
+```
+
+### 1-2. Additional Augmentation Tricks
+- Propose 2 data augmentation techniques (CutMix, copyblob)
+- ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/cutmix.PNG)
+    - Based on [Original CutMix](https://arxiv.org/abs/1905.04899), bring idea to Semantic Segmentation. 
+- ![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/copyblob.PNG)
+    - To tackle Class-Imbalance, use CopyBlob augmentation with visual inductive prior.
+        - Wall must be located on the sidewalk
+        - Fence must be located on the sidewalk
+        - Bus must be located on the Road
+        - Train must be located on the Road
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_cutmix --crop_size 576 1152 --batch_size 8 --cutmix;
+```
+
+```python
+python baseline.py --save_path baseline_run_deeplabv3_resnet50_copyblob --crop_size 576 1152 --batch_size 8 --copyblob;
+```
