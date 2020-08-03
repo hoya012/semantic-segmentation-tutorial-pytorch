@@ -41,7 +41,7 @@ We will use MiniCity Dataset from Cityscapes. This dataset is used for 2020 ECCV
 ```
 
 #### from 0 to 18 class, count labeled pixels
-![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/tree/master/minicity/class_pixel_distribution.png)
+![](https://github.com/hoya012/semantic-segmentation-tutorial-pytorch/blob/master/minicity/class_pixel_distribution.png)
 
 #### deeplab v3 baseline test set result
 ```python
